@@ -616,7 +616,7 @@
     </span>
     <strong>Or the following shortcode instead:</strong>
 	<span class="scode">
-    &lt;?php do_shortcode('[WP_HEADER_IMAGES
+    &lt;?php echo do_shortcode('[WP_HEADER_IMAGES
 template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;background-image: url(%url%);&quot;&gt;%title%&lt;/h2&gt;&lt;/div&gt;\']'); ?&gt;
 	</span>
     
@@ -662,7 +662,7 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
                 </p>
 
                 <p>
-                    <span class="light_blue">&lt;?php do_shortcode('[WP_HEADER_IMAGES]'); ?&gt;</span><br />
+                    <span class="light_blue">&lt;?php echo do_shortcode('[WP_HEADER_IMAGES]'); ?&gt;</span><br />
                 </p>
                 <?php _e("That's it."); ?><br /><br /><br />
 

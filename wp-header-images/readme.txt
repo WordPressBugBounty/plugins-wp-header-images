@@ -2,8 +2,8 @@
 Contributors: fahadmahmood, invoicepress
 Tags: header images, custom images, images slideshow, custom header, image slider
 Requires at least: 3.0.1
-Tested up to: 6.6
-Stable tag: 2.1.1
+Tested up to: 6.8
+Stable tag: 2.1.2
 Requires PHP: 7.0
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -70,7 +70,7 @@ Method-A:
 
     <span class="yellow"><?php do_action('apply_header_images'); ?></span>
     OR
-	<span class="light_blue"><?php do_shortcode('[WP_HEADER_IMAGES]'); ?></span>
+	<span class="light_blue"><?php echo do_shortcode('[WP_HEADER_IMAGES]'); ?></span>
 
 	
 Method-B:

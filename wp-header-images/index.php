@@ -3,7 +3,7 @@
 	Plugin Name: WP Header Images
 	Plugin URI: http://androidbubble.com/blog/wordpress/plugins/wp-header-images
 	Description: WP Header Images is a great plugin to implement custom header images for each page. You can set images easily and later can manage CSS from your theme.
-	Version: 2.1.1
+	Version: 2.1.2
 	Author: Fahad Mahmood 
 	Text Domain: wp-header-images
 	Domain Path: /languages
@@ -41,7 +41,7 @@
     $wphi_template = get_option('wphi_template', 'centered');
 	$wphi_dir = plugin_dir_path( __FILE__ );
 	$rendered = FALSE;
-	$wphi_data = get_plugin_data(__FILE__);
+	$wphi_data = get_plugin_data(__FILE__, true, false);
 	$wphi_premium_link = 'https://shop.androidbubbles.com/product/wp-header-images-pro';//https://shop.androidbubble.com/products/wordpress-plugin?variant=36439508484251';//
 	$wphi_link = plugin_dir_url( __FILE__ );
 

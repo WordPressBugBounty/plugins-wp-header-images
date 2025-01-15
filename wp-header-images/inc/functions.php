@@ -678,6 +678,7 @@
 		global $wphi_dir;
 		$is_header_image = get_header_image();
 		$img_data = get_header_images_inner();
+		$header_bg_image = '';
 		
 		extract($img_data);
 		$url = ($url?$url:$is_header_image);
