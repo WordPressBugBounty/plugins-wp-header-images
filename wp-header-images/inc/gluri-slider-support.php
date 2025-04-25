@@ -4,7 +4,7 @@ global  $is_gluri_slider, $wphi_set_gluri_str, $gsp_option_name;
 
 
 
-$wphi_set_gluri_str = __('Image Slider', 'wp-header-images');
+
 
 add_action('gluri_slider_banner', 'gluri_slider_banner_callback');
 add_action('wphi_before_menu_list', 'wphi_before_menu_list_gluri_callback', 1, 1);

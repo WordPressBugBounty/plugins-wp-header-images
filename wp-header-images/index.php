@@ -1,9 +1,9 @@
-<?php defined( 'ABSPATH' ) or die( __('No script kiddies please!', 'wp-header-images') );
+<?php defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 /*
 	Plugin Name: WP Header Images
 	Plugin URI: http://androidbubble.com/blog/wordpress/plugins/wp-header-images
 	Description: WP Header Images is a great plugin to implement custom header images for each page. You can set images easily and later can manage CSS from your theme.
-	Version: 2.1.2
+	Version: 2.1.3
 	Author: Fahad Mahmood 
 	Text Domain: wp-header-images
 	Domain Path: /languages
@@ -17,8 +17,9 @@
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         
 
-	global $wphi_premium_link, $wphi_dir, $wphi_pro, $wphi_data, $wphi_link, $wphi_template, $wphi_header_images, $wphi_set_str, $is_gluri_slider, $gsp_option_name, $gluri_slider_results, $wpdb, $gulri_priority, $wphi_on_off_options;
+	global $wphi_premium_link, $wphi_dir, $wphi_pro, $wphi_data, $wphi_link, $wphi_template, $wphi_header_images, $wphi_set_str, $is_gluri_slider, $gsp_option_name, $gluri_slider_results, $wpdb, $gulri_priority, $wphi_on_off_options, $wphi_default_header_str, $wphi_set_gluri_str;
 
+	$wphi_default_header_str = '<div class="header_image wphi_dom_element"><img src="%url%" alt="%title%" /></div>';
 	$gsp_option_name = "gsp-item-";
     $plugins_activated = apply_filters( 'active_plugins', get_option( 'active_plugins' ));
     $is_gluri_slider = in_array('gulri-slider/index.php', $plugins_activated);
@@ -56,7 +57,7 @@
 
 	}
 
-    $wphi_set_str = $is_gluri_slider || $wphi_pro ? __('Header Image','wp-header-images') : __('Header Image','wp-header-images');
+    
 
 
     include('inc/functions.php');

@@ -806,7 +806,11 @@
 	}
 	if(!function_exists('wphi_init')){
 		function wphi_init(){
+			global $wphi_set_str, $is_gluri_slider, $wphi_pro, $wphi_set_gluri_str;
 			//echo ':)';
+			$wphi_set_str = $is_gluri_slider || $wphi_pro ? __('Header Image','wp-header-images') : __('Header Image','wp-header-images');
+			$wphi_set_gluri_str = __('Image Slider', 'wp-header-images');
+			
 			add_filter('get_header_image_tag', 'wphi_get_header_image_tag', 20);
 			add_action('storefront_header_styles', 'get_storefront_header_styles', 10, 1);	
 		}
