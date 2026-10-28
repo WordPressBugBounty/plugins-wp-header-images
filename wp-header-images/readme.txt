@@ -2,8 +2,8 @@
 Contributors: fahadmahmood, invoicepress
 Tags: header images, custom images, images slideshow, custom header, image slider
 Requires at least: 3.0.1
-Tested up to: 6.8
-Stable tag: 2.1.3
+Tested up to: 7.1
+Stable tag: 2.1.4
 Requires PHP: 7.0
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -153,6 +153,12 @@ Yes, you can use this plugin with multiple menus. Go to Appearance > Menus > Edi
 13. Select post types for header images.
 
 == Changelog ==
+= 2.1.4 =
+* Tested up to WordPress 7.1.
+* Security: prepared SQL query, escaped output, capability check unified to manage_options, safe redirects, no raw REQUEST_URI in forms.
+* Performance: asset versions now use filemtime() so browsers can cache; removed Bootstrap and FontAwesome (about 1.5 MB) in favour of core Dashicons and WordPress button styles.
+* Cleanup: uninstall now removes all plugin options (multisite aware); removed dead debug code.
+* UX: 'Settings saved' notice, friendlier security-check error.
 = 2.1.0 =
 * Updated for WordPress version. [18/05/2023]
 = 2.0.9 =

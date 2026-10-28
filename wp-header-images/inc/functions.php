@@ -46,7 +46,7 @@
 
 		global $wphi_data;
 
-		 add_options_page($wphi_data['Name'], $wphi_data['Name'], 'activate_plugins', 'wp_hi', 'wp_hi');
+		 add_options_page($wphi_data['Name'], $wphi_data['Name'], 'manage_options', 'wp_hi', 'wp_hi');
 
 
 
@@ -56,7 +56,7 @@
 
 
 
-		if ( !current_user_can( 'administrator' ) )  {
+		if ( ! current_user_can( 'manage_options' ) )  {
 
 
 
@@ -99,6 +99,11 @@
 		return $links; 
 	}
 	
+	function wphi_asset_ver($relative){
+		$file = plugin_dir_path( dirname(__FILE__) ) . $relative;
+		return file_exists($file) ? filemtime($file) : false;
+	}
+
 	function register_hi_scripts() {
 		
 		global $wphi_pro, $wphi_on_off_options;
@@ -112,7 +117,7 @@
 		$translation_array = array(	
 
 			'this_url' => admin_url( 'options-general.php?page=wp_hi' ),
-			'wphi_tab' => (isset($_GET['t'])?sanitize_wphi_data($_GET['t']):'0'),
+			'wphi_tab' => (isset($_GET['t'])?absint($_GET['t']):0),
 			'wphi_pro' => $wphi_pro?'yes':'false',
 			'wphi_tempalte_reset' => __('This tempalte will reset the settings and you can continue as default.', 'wp-header-images'),
 			'wphi_html_styles' => __('You can implement your own HTML, Styles and Scripts with this option.', 'wp-header-images'),
@@ -132,7 +137,7 @@
 			);
 		
 
-			if(isset($_GET['page']) && in_array($_GET['page'], $allowed_pages)){
+			if(isset($_GET['page']) && in_array(sanitize_key(wp_unslash($_GET['page'])), $allowed_pages, true)){
 					
 					
 				wp_enqueue_media();
@@ -142,7 +147,7 @@
 					'wphi-scripts',
 					plugins_url('js/scripts.js', dirname(__FILE__)),
 					array('jquery'),
-					time()
+					wphi_asset_ver('js/scripts.js')
 				);	
 				
 				
@@ -150,13 +155,10 @@
 				wp_enqueue_style( 'wphi-style',
 					plugins_url('css/admin-styles.css', dirname(__FILE__)),
 					array(),
-					time()
+					wphi_asset_ver('css/admin-styles.css')
 				);
 								
-				wp_enqueue_style('wphi-fontawesome', plugins_url('css/fontawesome.min.css', dirname(__FILE__)));
-				wp_enqueue_script('wphi-fontawesome', plugin_dir_url(dirname(__FILE__)) . 'js/fontawesome.min.js', array('jquery'));
-				wp_enqueue_script('wphi-bootstrap', plugin_dir_url(dirname(__FILE__)) . 'js/bootstrap.min.js', array('jquery'));
-				wp_enqueue_style('wphi-bootstrap', plugins_url('css/bootstrap.min.css', dirname(__FILE__)));
+				wp_enqueue_style('dashicons');
 				
 				wp_localize_script( 'wphi-scripts', 'wphi_obj', $translation_array );
 			}
@@ -165,13 +167,13 @@
 		
 		}else{
 					
-			wp_enqueue_style('wphi-style', plugins_url('css/front-styles.css', dirname(__FILE__)), array(), time(), 'all');
+			wp_enqueue_style('wphi-style', plugins_url('css/front-styles.css', dirname(__FILE__)), array(), wphi_asset_ver('css/front-styles.css'), 'all');
 			
 			
 			$disable_devices_on = (array_key_exists('disable_devices', $wphi_on_off_options) && $wphi_on_off_options['disable_devices']=='on');
 			
 			if($disable_devices_on){
-				wp_enqueue_style('wphi-mobile-style', plugins_url('css/mobile-styles.css', dirname(__FILE__)), array(), time(), 'all');
+				wp_enqueue_style('wphi-mobile-style', plugins_url('css/mobile-styles.css', dirname(__FILE__)), array(), wphi_asset_ver('css/mobile-styles.css'), 'all');
 			}
 			
 		}
@@ -211,23 +213,16 @@
 		$wphi_header_videos = get_option('wphi_header_videos', array());
 		$wphi_gluri_slider = is_array($wphi_gluri_slider)?$wphi_gluri_slider:array();
 
-//		pree($post);
-//		pree($wp_header_images);
-//		pree($wphi_header_videos);exit;
-//		pree($menus);exit;
 		
 		$page_id = 0;
 		$arr = array();
 		$arr_obj = array();
 		$arr_urls = array();
 		
-		//pre(is_front_page());
-		//pre(is_home());
-		//pree(is_single());
 		$possible_page_uri = basename(home_url( $wp->request ));
 		
 		if($possible_page_uri){
-			$possible_page_obj = $wpdb->get_row("SELECT ID FROM ".$wpdb->prefix."posts WHERE post_name='".esc_sql($possible_page_uri)."' AND post_type IN('page', 'post', 'product')");
+			$possible_page_obj = $wpdb->get_row($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type IN ('page', 'post', 'product') LIMIT 1", sanitize_title($possible_page_uri)));
 
 			if(is_object($possible_page_obj) && !empty($possible_page_obj) && isset($possible_page_obj->ID) && $possible_page_obj->ID>0){
 				$page_id = $possible_page_obj->ID;
@@ -248,7 +243,6 @@
 			}elseif(function_exists('is_product_category') && is_product_category()){
 				$cate = get_queried_object();
 				$page_id = $cate->term_id;
-				//pre($cate);pre($page_id);
 			}
 			elseif(is_archive()){
 				$page_id = get_cat_id( single_cat_title("",false) ); 		
@@ -256,10 +250,6 @@
 				$page_id = get_the_ID();
 			}
 		}
-		//pre(is_product_category());
-		//pre($page_id);//exit;
-		//pre(get_the_ID());
-		//pre($post);
 		
 		
 		foreach ( $menus as $menu ):
@@ -269,7 +259,6 @@
 					$parent = $items->menu_item_parent;
 					
 					$arr[$items->ID] = $parent;
-					//pre($arr_obj);
 					$key = $items->object_id;
 					$arr_obj[$key][$items->ID] = $items->ID;
 					$arr_urls[$key][$items->ID] = $items->url;
@@ -277,61 +266,38 @@
 				}
 			}
 		endforeach;
-//		pree($arr);
-//		pree($arr_urls);
-//		pree($arr_obj);
-//		pre(get_the_ID());
-//		pre($page_id);
-//		pre($cur_cat_id);
-//		pre(is_single());
-//		pre(is_page());
-//		pre(is_archive());
-//		pre(is_shop());
-//		pre($_SERVER);
-		$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+		$actual_link = 'http://'.( isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '' ).( isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash($_SERVER['REQUEST_URI'])) : '' );
 		if(array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS']=='on'){
 			$actual_link = str_replace('http://', 'https://', $actual_link);			
 		}
 		$actual_link = str_replace('?debug', '', $actual_link);
-//		pree($actual_link);
 		$obj_ids = array();
 		if($page_id!=0 && array_key_exists($page_id, $arr_urls)){
-			//pre($arr_urls);
 			if(count($arr_urls[$page_id])>0){
-				//pre($actual_link);
-				//pre($arr_urls[$page_id]);
 				foreach($arr_urls[$page_id] as $pkey => $purl){
 					$obj_id = ($actual_link==$purl?$pkey:0);
 					if($obj_id){
-						//pre($obj_id);
 						$obj_ids[] = $obj_id;					
 					}
 				}
-				//pre($obj_id);
 				//$arr_obj[$page_id] = array($arr_obj[$page_id][$obj_id]);
 			}else{
 			}
 		}
 		
-//		pree($obj_ids);exit;
 			
 		if($page_id==0 && is_array($arr_urls)){
 			foreach($arr_urls as $expected_page_id => $arr_url){
 				
 				if($page_id==0 && empty($obj_ids)){
-					//pre($actual_link);
-					//pre($arr_url);
 					
 					$for_obj_id = array_search($actual_link, $arr_url);
 					
 					if(!$for_obj_id)
 					$for_obj_id = array_search('/', $arr_url);
-					//pre($obj_id);
 					//pee($expected_page_id);
 					if($for_obj_id>0){
 						$obj_ids[] = $for_obj_id;
-						//pre($arr_url);
-						//pre($expected_page_id);
 						$page_id = $expected_page_id;
 					}
 				}
@@ -344,8 +310,6 @@
 			$page_id = current(array_keys($arr_obj));
 		}
 
-//		pree($page_id);
-//		pree($obj_ids);exit;
 		$img_id = 0;
 		$slider_id = 0;
 		$video_id = 0;
@@ -367,17 +331,10 @@
 		}
 		
 
-//		pree($wphi_gluri_slider);
-//        $img_id = current($wphi_gluri_slider);
 //
-//        pree($img_id);exit;
-		//pree($page_id);
-		//pree($parent_id);
 
 		if($wphi_pro){
 			$post_type = get_post_type($page_id);
-			//pree($page_id);
-			//pree($wp_header_images);pree($post_type);pree(array_key_exists($post_type, $wp_header_images));pree(array_key_exists($page_id, $wp_header_images[$post_type]));
 			if($post_type && is_array($wp_header_images) && array_key_exists($post_type, $wp_header_images)){
 				if(array_key_exists($page_id, $wp_header_images[$post_type])){
 
@@ -408,11 +365,7 @@
 
 
 
-//        pree($slider_id);
-//exit;
         if((is_front_page() || is_home())) {
-			//pree($wp_header_images);
-			//pree($wphi_gluri_slider);
 
 	        if($img_id == 0)
 			    $img_id = isset($wp_header_images['default'])?$wp_header_images['default']:0;
@@ -425,45 +378,33 @@
 
 		}
 		//return $ret;
-		//pree($img_id);//exit;
 
-//        pree($page_id);
-		//pree($ret);
-//        pree($slider_id);exit;
 
 		//return $ret;
-		//pre($img_id.', '.$slider_id.', '.$video_id.', '.$page_id);
 		
 		$ret = wphi_get_image_to_display($img_id, $slider_id, $video_id, $page_id);
-		//pree($ret);exit;
 
 
 		if($wphi_pro && function_exists('wphi_pre_get_header_images_inner') && wphi_pre_get_header_images_inner()){
-			//pree($wp_header_images);pree($wphi_gluri_slider);pree($wphi_header_videos);
 			$ret = wphi_get_header_images_inner($wp_header_images, $wphi_gluri_slider, $wphi_header_videos);
 		}
 		$ret = array_filter($ret);
 		//return $ret;
-		//pre($ret);pre($page_id);
 		
 
 		if(empty($ret)){
 			$page_id = ($page_id?$page_id:get_the_ID());
-			//pre($page_id);
 			if($page_id){
 				$categories = get_the_category();
 				$wp_header_category_images = (isset($wp_header_images['category'])?$wp_header_images['category']:array());
                 $wphi_gluri_slider_images = (isset($wphi_gluri_slider['category'])?$wphi_gluri_slider['category']:array());
 				$wp_header_category_videos = (isset($wphi_header_videos['category'])?$wphi_header_videos['category']:array());
-//				pree($wp_header_images);exit;
 				if(!empty($categories)){
 					$possible_banners = array();
 					foreach($categories as $category){
 						$possible_banners[] = $category->term_id;
 					}
 				}
-//				pree($categories);exit;
-				//pree($wp_header_category_images);
 				if(!empty($possible_banners)){
 					foreach($possible_banners as $category_banner){
 
@@ -498,10 +439,7 @@
 					}
 				}
 				
-				//pree($img_id);exit;	
 				$wphi_sidebar_settings = get_option('wphi_sidebar_settings', array());
-				//pree($wphi_sidebar_settings);
-				//pree(get_post_type());
 				//return $img_id;
 				if($img_id == 0 ) {
 					if(
@@ -538,18 +476,15 @@
 	function wphi_get_image_to_display($img_id, $slider_id, $video_id, $page_id){
 		
 		global $post;
-		//pree($post->ID);
 		$ret = array('title'=>'', 'url'=>'');
 		if($img_id>0 || $slider_id > 0 || $video_id > 0){
 			$img_url = wp_get_attachment_url( $img_id );			
 			$video_url = wp_get_attachment_url( $video_id );
-			//pre($img_url);
 			if(is_object($post) && isset($post->post_type)){
 			}else{
 	            $post = get_post($page_id);
 			}
 			
-			//pree($post->post_type);
 
 
 
@@ -577,20 +512,16 @@
 				$ret['slider_id'] = $slider_id;
             }
 		}
-		//pree($ret);exit;
 		return $ret;
 	}
 	if(!function_exists('wphi_get_header_images')){
 	
 		function wphi_get_header_images($template_str='', $plain=false, $echo_sc = true){
-			//pree('wphi_get_header_images');
 			global $wphi_dir, $is_gluri_slider, $gluri_slider_results, $gulri_priority;
 			$is_header_image = get_header_image();
 			$img_data = get_header_images_inner();
 
-//			pree($img_data);
 			extract($img_data);
-//			pree($plain);exit;
 			
 			$url = (array_key_exists('url', $img_data)?$url:$is_header_image);
 			$video_url = (array_key_exists('video_url', $img_data)?$video_url:'');
@@ -598,8 +529,6 @@
 
 
 
-			//pre($url);
-			//pre($plain);
             $search = array();
             if($is_gluri_slider && array_key_exists('slider_id', $img_data)) {
 
@@ -651,7 +580,6 @@
 
                 if($plain){
                     $template_str = ($url?'<img src="'.$url.'" alt="'.$title.'" />':'');
-                    //pre($template_str);
                     return $template_str;
                 }else{
                     $template_str = (trim($url)?'<div class="header_image wphi_dom_element"><img src="'.$url.'" alt="'.$title.'" /></div>':'');
@@ -795,9 +723,7 @@
 	}
 	if(!function_exists('wphi_get_header_image_tag')){
 		function wphi_get_header_image_tag($default = array()){
-			//pree($default);
 			$defined = wphi_get_header_images('', true, false);
-			//pree($default);
 			$defined = ($defined!=''?$defined:$default);
 			echo wphi_kses($defined);
 			
@@ -823,8 +749,8 @@
 			global $wphi_premium_link;
 			$post_types = get_post_types();
 ?>
-<ul class="menu-class wphi_cmm"><li><?php _e('Do you want to set header images for more post types like','wp-header-images'); ?> <a><?php echo implode('</a>, <a>', $post_types) ?></a>? <br />
-<a class="wphi_premium" href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><?php _e('Go Premium','wp-header-images'); ?></a></li></ul>
+<ul class="menu-class wphi_cmm"><li><?php esc_html_e('Do you want to set header images for more post types like','wp-header-images'); ?> <a><?php echo implode('</a>, <a>', $post_types) ?></a>? <br />
+<a class="wphi_premium" href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><?php esc_html_e('Go Premium','wp-header-images'); ?></a></li></ul>
 <?php			
 		}
 	}
@@ -873,7 +799,6 @@
         $dom_type = (array_key_exists('type', $wphi_dom) && $wphi_dom['type']) ? $wphi_dom['type'] : 'img';
         $placement_type = (array_key_exists('placement_type', $wphi_dom) && $wphi_dom['placement_type']) ? $wphi_dom['placement_type'] : 'replace';
         $bg_image = false;
-		//pree($wphi_dom);exit;
         if(empty($wphi_dom) || !array_key_exists('switch', $wphi_dom) || !$dom_selector){
 
             return;
@@ -1062,7 +987,6 @@
         $width = (array_key_exists('width', $wphi_sidebar_settings) && $wphi_sidebar_settings['width']) ? $wphi_sidebar_settings['width'] : '';
         $height = (array_key_exists('height', $wphi_sidebar_settings) && $wphi_sidebar_settings['height']) ? $wphi_sidebar_settings['height'] : '';
 
-//        pree($height);
 
         ?>
 

@@ -842,3 +842,13 @@ input:checked + .wphi_slider:before {
 .wphi .nav-tab-content.post_types_wrapper {
 	padding: 20px 0;
 }
+/* 2.1.4: replaces Bootstrap/FontAwesome usage */
+.wphi .dashicons{vertical-align:middle;line-height:1;}
+.wphi .nav-tab .dashicons{font-size:16px;width:16px;height:16px;margin-left:4px;}
+.wphi .wphi-help-links{list-style:none;margin:0;padding:0;}
+.wphi .wphi-help-links li{display:inline-block;margin:0 10px 10px 0;vertical-align:top;}
+.wphi .wphi-help-links li:last-child{display:block;}
+.wphi .wphi-help-links iframe{max-width:100%;}
+.wphi .accordion.button{height:auto;padding:6px 14px;}
+.wphi .nav-tab:focus-visible,.wphi .banner_wrapper:focus-visible{outline:2px solid #2271b1;outline-offset:2px;}
+@media (max-width:782px){.wphi .nav-tab-wrapper .nav-tab{float:none;display:block;}}

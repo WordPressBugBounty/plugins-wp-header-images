@@ -1,9 +1,10 @@
 <?php defined( 'ABSPATH' ) or die( __('No script kiddies please!', 'wp-header-images') );
-	if ( !current_user_can( 'administrator' ) ) {
+	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( __( 'You do not have sufficient permissions to access this page.', 'wp-header-images' ) );
 	}
 // Save the field values
 	global $wphi_on_off_options;
+	$wphi_saved = false;
 
     if ( isset( $_POST['wphi_post_type_selection_submit'] )) {
 
@@ -13,25 +14,21 @@
             || ! wp_verify_nonce( $_POST['wphi_post_type_field'], 'wphi_post_type_action' )
         ) {
 
-            _e('Sorry, your nonce did not verify.', 'wp-header-images');
-            exit;
+            wp_die(esc_html__('Security check failed. Please reload the page and try again.', 'wp-header-images'));
 
         } else {
 
 
             // process form data
-//            pree($_POST);
             $wphi_post_type_selection = isset($_POST['wphi_post_type_selection']) ? sanitize_wphi_data($_POST['wphi_post_type_selection']) : array();
             update_option( 'wphi_post_type_selection', $wphi_post_type_selection);
 
             $wphi_on_off_options = isset($_POST['wphi_on_off_options']) ? sanitize_wphi_data($_POST['wphi_on_off_options']) : array();			
 			
-			//pree($wphi_on_off_options_updated);
-			//pree($wphi_on_off_options);
 			//$wphi_on_off_options = array_merge($wphi_on_off_options_updated, $wphi_on_off_options);
-			//pree($wphi_on_off_options);
 			
-	        update_option( 'wphi_on_off_options', $wphi_on_off_options);			
+	        update_option( 'wphi_on_off_options', $wphi_on_off_options);
+	        $wphi_saved = true;			
 			
 			
         }
@@ -47,13 +44,13 @@
 				|| ! wp_verify_nonce( $_POST['wphi_styling_action_field'], 'wphi_styling_action' ) 
 			) {
 			
-			   _e('Sorry, your nonce did not verify.');
-			   exit;
+			   wp_die(esc_html__('Security check failed. Please reload the page and try again.', 'wp-header-images'));
 			
 			} else {
 			
 			   // process form data
 			   update_option( 'wphi_styling', sanitize_wphi_data($_POST['wphi_styling']));
+			   $wphi_saved = true;
 			}					
 	}
 	if ( isset( $_POST['hi_fields_submitted'] ) && $_POST['hi_fields_submitted'] == 'submitted' ) {
@@ -69,14 +66,13 @@
 				|| ! wp_verify_nonce( $_POST['wphi_nonce_action_field'], 'wphi_nonce_action' ) 
 			) {
 			
-			   _e('Sorry, your nonce did not verify.');
-			   exit;
+			   wp_die(esc_html__('Security check failed. Please reload the page and try again.', 'wp-header-images'));
 			
 			} else {
 			
 			   // process form data
-			   //pree($_POST['header_images']);exit;
-			   update_option( 'wp_header_images', sanitize_wphi_data($_POST['header_images']));
+			   update_option( 'wp_header_images', isset($_POST['header_images']) ? sanitize_wphi_data($_POST['header_images']) : array());
+			   $wphi_saved = true;
 			}			
 			
 			
@@ -85,33 +81,33 @@
 		
 	}
 	$wphi_header_images = get_option( 'wp_header_images', array());
-	//pree($wphi_header_images);
 	
 	$wphi_theme = wp_get_theme();
 	$current_theme = $wphi_theme->get('TextDomain');
 	
 	
-	//pree($wphi_get_templates);
-	//pree($wphi_on_off_options);
 
 ?>	
 <div class="wrap wphi">
+<?php if(!empty($wphi_saved)): ?>
+<div class="notice notice-success is-dismissible"><p><?php esc_html_e('Settings saved.', 'wp-header-images'); ?></p></div>
+<?php endif; ?>
 	
 <?php if(!$wphi_pro): ?>
-<a title="<?php _e('Click here to download pro version','wp-header-images'); ?>" class="pro" href="https://shop.androidbubbles.com/download/" target="_blank"><?php _e('Already a Pro Member?','wp-header-images'); ?></a>
+<a title="<?php esc_attr_e('Click here to download pro version','wp-header-images'); ?>" class="pro" href="https://shop.androidbubbles.com/download/" target="_blank"><?php esc_html_e('Already a Pro Member?','wp-header-images'); ?></a>
 <?php endif; ?>
     
   <div class="head_area">
-	<h2><span class="dashicons dashicons-welcome-widgets-menus"></span><?php echo esc_html($wphi_data['Name'].' '.'('.$wphi_data['Version'].($wphi_pro?') '.__('Pro','wp-header-images').'':')')); ?> - <?php _e('Settings','wp-header-images'); ?></h2>
+	<h2><span class="dashicons dashicons-welcome-widgets-menus"></span><?php echo esc_html($wphi_data['Name'].' '.'('.$wphi_data['Version'].($wphi_pro?') '.__('Pro','wp-header-images').'':')')); ?> - <?php esc_html_e('Settings','wp-header-images'); ?></h2>
     
     
     <h2 class="nav-tab-wrapper">
-    <a class="nav-tab nav-tab-active"><?php _e("Header Images","wp-header-images"); ?> <i class="fas fa-photo-video"></i></a>
-    <a class="nav-tab" data-tab="help" data-type="free"><i class="far fa-question-circle"></i>&nbsp;<?php _e("Help", 'wp-header-images'); ?></a>
-    <a class="nav-tab"><?php _e("Styling","wp-header-images"); ?> <i class="fas fa-paint-brush"></i></a>
-    <a class="nav-tab"><?php _e("Developers","wp-header-images"); ?> <i class="fas fa-code"></i></a>
-    <a class="nav-tab"><?php _e("How it works?","wp-header-images"); ?> <i class="fas fa-cogs"></i></a>
-    <a class="nav-tab"><?php _e("On/Off","wp-header-images"); ?> <i class="fas fa-eye-slash"></i></a>
+    <a class="nav-tab nav-tab-active"><?php esc_html_e("Header Images","wp-header-images"); ?> <span class="dashicons dashicons-format-gallery"></span></a>
+    <a class="nav-tab" data-tab="help" data-type="free"><span class="dashicons dashicons-editor-help"></span>&nbsp;<?php esc_html_e("Help", 'wp-header-images'); ?></a>
+    <a class="nav-tab"><?php esc_html_e("Styling","wp-header-images"); ?> <span class="dashicons dashicons-admin-appearance"></span></a>
+    <a class="nav-tab"><?php esc_html_e("Developers","wp-header-images"); ?> <span class="dashicons dashicons-editor-code"></span></a>
+    <a class="nav-tab"><?php esc_html_e("How it works?","wp-header-images"); ?> <span class="dashicons dashicons-admin-generic"></span></a>
+    <a class="nav-tab"><?php esc_html_e("On/Off","wp-header-images"); ?> <span class="dashicons dashicons-hidden"></span></a>
     
     </h2>
     
@@ -122,14 +118,14 @@
     </div>
     
     
-<form id="wphi-headers-section" class="nav-tab-content" action="<?php echo esc_attr($_SERVER['REQUEST_URI']); ?>" method="post">
-<input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?esc_attr($_GET['t']):'0'; ?>" />
+<form id="wphi-headers-section" class="nav-tab-content" action="<?php echo esc_url(admin_url('options-general.php?page=wp_hi')); ?>" method="post">
+<input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?absint($_GET['t']):'0'; ?>" />
 <?php wp_nonce_field( 'wphi_nonce_action', 'wphi_nonce_action_field' ); ?>
 <input type="hidden" name="hi_fields_submitted" value="submitted" />
 <input type="hidden" name="hi_fields_focus" value="" />
     <div id="main">
 
-        <button class="button button-secondary wphi_open_btn wphi-settings-button " onclick="wphi_open_nav()"><span class="dashicons dashicons-menu-alt2"></span> <?php _e('Settings', 'wp-header-images'); ?></button>
+        <button class="button button-secondary wphi_open_btn wphi-settings-button " onclick="wphi_open_nav()"><span class="dashicons dashicons-menu-alt2"></span> <?php esc_html_e('Settings', 'wp-header-images'); ?></button>
 
     </div>
 
@@ -150,27 +146,27 @@
 
 
 
-        <a href="javascript:void(0)" class="wphi_close_btn" onclick="wphi_close_nav()"><i class="fas fa-times-circle"></i></a>
+        <a href="javascript:void(0)" class="wphi_close_btn" onclick="wphi_close_nav()"><span class="dashicons dashicons-dismiss"></span></a>
 
         <div class="input_wrapper">
 
             <div class="wphi_form_group">
-                <label for=""><?php _e('Default Image', 'wp-header-images'); ?> (<?php _e('ON/OFF', 'wp-header-images'); ?>):</label>
+                <label for=""><?php esc_html_e('Default Image', 'wp-header-images'); ?> (<?php esc_html_e('ON/OFF', 'wp-header-images'); ?>):</label>
 
                 
-                <label for="default_home"><input class="wphi_input" id="default_home" type="checkbox" value="home" name="default_home" checked="checked" onclick="return false;" /> <?php _e('Home', 'wp-header-images'); ?></label>
-                <label for="default_page"><input class="wphi_input" id="default_page" type="checkbox" value="page" name="default_page" <?php checked(array_key_exists('default_page', $wphi_sidebar_settings)); ?> /> <?php _e('Page', 'wp-header-images'); ?></label>
-                <label for="default_post"><input class="wphi_input" id="default_post" type="checkbox" value="post" name="default_post" <?php checked(array_key_exists('default_post', $wphi_sidebar_settings)); ?> /> <?php _e('Post', 'wp-header-images'); ?></label>
+                <label for="default_home"><input class="wphi_input" id="default_home" type="checkbox" value="home" name="default_home" checked="checked" onclick="return false;" /> <?php esc_html_e('Home', 'wp-header-images'); ?></label>
+                <label for="default_page"><input class="wphi_input" id="default_page" type="checkbox" value="page" name="default_page" <?php checked(array_key_exists('default_page', $wphi_sidebar_settings)); ?> /> <?php esc_html_e('Page', 'wp-header-images'); ?></label>
+                <label for="default_post"><input class="wphi_input" id="default_post" type="checkbox" value="post" name="default_post" <?php checked(array_key_exists('default_post', $wphi_sidebar_settings)); ?> /> <?php esc_html_e('Post', 'wp-header-images'); ?></label>
 
             </div>
 
 
 <hr />
             <div class="wphi_form_group">
-                <h4><?php _e('Image Styles', 'wp-header-images'); ?> (<?php _e('Optional', 'wp-header-images'); ?>)</h4>
+                <h4><?php esc_html_e('Image Styles', 'wp-header-images'); ?> (<?php esc_html_e('Optional', 'wp-header-images'); ?>)</h4>
             </div>
             <div class="wphi_form_group">
-                <label for=""><?php _e('Width', 'wp-header-images'); ?>: </label>
+                <label for=""><?php esc_html_e('Width', 'wp-header-images'); ?>: </label>
                 <input type="range" min="1" max="100" value="<?php echo array_key_exists('width', $wphi_sidebar_settings) ? esc_attr($wphi_sidebar_settings['width']) : ''?>" class="wphi_range <?php echo esc_attr($width_type == 'px' ?  'hide' : ''); ?>" />
                 <input type="number" max="<?php echo esc_attr($width_type == 'px' ?  '' : '100'); ?>" value="<?php echo array_key_exists('width', $wphi_sidebar_settings) ? esc_attr($wphi_sidebar_settings['width']) : ''?>" name="width" class="wphi_input" />
                 <a class="button button-secondary suffix" data-value="<?php echo esc_attr($width_type); ?>"><?php echo esc_html($width_type); ?></a>
@@ -178,7 +174,7 @@
 
 
             <div class="wphi_form_group">
-                <label for=""><?php _e('Height', 'wp-header-images'); ?>: </label>
+                <label for=""><?php esc_html_e('Height', 'wp-header-images'); ?>: </label>
                 <input type="range" min="1" max="100" value="<?php echo array_key_exists('height', $wphi_sidebar_settings) ? esc_attr($wphi_sidebar_settings['height']) : ''?>" class="wphi_range <?php echo esc_attr($height_type == 'px' ?  'hide' : ''); ?>" />
                 <input type="number" max="<?php echo esc_attr($height_type == 'px' ?  '' : '100'); ?>" value="<?php echo array_key_exists('height', $wphi_sidebar_settings) ? esc_attr($wphi_sidebar_settings['height']) : ''?>" name="height" class="wphi_input" />
                 <a class="button button-secondary suffix" data-value="<?php echo esc_attr($height_type); ?>"><?php echo esc_html($height_type); ?></a>
@@ -187,7 +183,7 @@
 
 
             <div class="wphi_form_group">
-                <button class="button button-secondary wphi_sidebar_update"><?php _e('Save Changes','wp-header-images'); ?></button>
+                <button class="button button-secondary wphi_sidebar_update"><?php esc_html_e('Save Changes','wp-header-images'); ?></button>
                 <span class="wphi_spinner"></span>
                 <span class="dashicons dashicons-yes wphi_done"></span>
             </div>
@@ -208,15 +204,14 @@
 	do_action('wphi_before_menu_list', $wphi_header_images);
 	if(!empty($menus)){
 ?>
-<p class="submit" style="display:none"><input type="submit" name="Submit" class="button-primary" value="<?php _e( 'Save Changes','wp-header-images'); ?>" /></p>
+<p class="submit" style="display:none"><input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes','wp-header-images'); ?>" /></p>
 <?php		
 	
 	foreach ( $menus as $menu ):
 	$menu_items = wp_get_nav_menu_items($menu->name);
-	//pree($menu);
 ?>
  
-   <h3 data-id="<?php echo esc_attr($menu->term_id); ?>"><span class="dashicons dashicons-format-aside"></span><?php _e('Menu', 'wp-header-images'); ?> - <?php echo esc_html($menu->name); ?> (<?php echo count($menu_items); ?>)</h3>
+   <h3 data-id="<?php echo esc_attr($menu->term_id); ?>"><span class="dashicons dashicons-format-aside"></span><?php esc_html_e('Menu', 'wp-header-images'); ?> - <?php echo esc_html($menu->name); ?> (<?php echo count($menu_items); ?>)</h3>
 <ul class="menu-class wphi_banners pages_<?php echo esc_attr($menu->term_id); ?> <?php echo ($m==0?'hide':'hide'); $m++; ?>"> 
 <?php 
 	
@@ -237,8 +232,8 @@
 <!--        <span class="dashicons dashicons-yes hide"></span>-->
         <div title="<?php echo esc_attr($wphi_set_str); ?>" class="banner_wrapper" <?php echo ($img_url?'style="background:url('.esc_url($img_url).'); background-repeat:no-repeat;"':''); ?>><?php do_action('wphi_inside_banner_wrapper', $img_url) ?><input type="number" value="<?php echo ($img_id>0?esc_attr($img_id):0); ?>" class="hide hi_vals" name="header_images[<?php echo esc_attr($items->ID); ?>]" /><?php if($img_id==0 || true): ?><label><?php echo esc_html($wphi_set_str); ?></label><?php endif; ?></div>
         <?php do_action('gluri_slider_banner', $items->ID) ?>
-        <a class="wphi_submit_btn" title="<?php _e('Click here to submit changes','wp-header-images'); ?>"><?php _e('Save Changes','wp-header-images'); ?></a>
-        <a class="wphi_clear_btn" title="<?php _e('Click here to remove this header image','wp-header-images'); ?>"><?php _e('Clear','wp-header-images'); ?></a>
+        <a class="wphi_submit_btn" title="<?php esc_attr_e('Click here to submit changes','wp-header-images'); ?>"><?php esc_html_e('Save Changes','wp-header-images'); ?></a>
+        <a class="wphi_clear_btn" title="<?php esc_attr_e('Click here to remove this header image','wp-header-images'); ?>"><?php esc_html_e('Clear','wp-header-images'); ?></a>
     </li>
 <?php			
 		}
@@ -253,15 +248,13 @@
 <hr />
 <?php
 	$get_taxonomies = get_taxonomies();
-	//pree($get_taxonomies);
-	//pree($wphi_header_images);
 	if(!empty($get_taxonomies)){
 		foreach($get_taxonomies as $taxonomies){
 			if(!in_array($taxonomies, array('product_cat', 'category'))){ continue; }
 			$terms = get_terms( array( 'taxonomy' => $taxonomies ) );
 
 ?>
-<h3 data-premium="true" data-id="<?php echo esc_attr($taxonomies); ?>" class="premium" title="<?php echo __('Premium Feature', 'wp-header-images'); ?>"><span class="dashicons dashicons-category"></span>Taxonomy - <?php echo esc_html($taxonomies); ?> (<?php echo count($terms); ?>)</h3>
+<h3 data-premium="true" data-id="<?php echo esc_attr($taxonomies); ?>" class="premium" title="<?php echo esc_html__('Premium Feature', 'wp-header-images'); ?>"><span class="dashicons dashicons-category"></span>Taxonomy - <?php echo esc_html($taxonomies); ?> (<?php echo count($terms); ?>)</h3>
 <ul class="menu-class wphi_banners pages_<?php echo esc_attr($taxonomies); ?> hide"> 
 <?php			
 		if(!empty($terms)){
@@ -278,8 +271,8 @@
 
         <div title="<?php echo esc_attr($wphi_set_str); ?>" class="banner_wrapper" style="background:url('<?php echo esc_url($img_url); ?>'); background-repeat:no-repeat;"><?php do_action('wphi_inside_banner_wrapper', $img_url) ?><input type="number" value="<?php echo ($img_id>0?esc_attr($img_id):0); ?>" class="hide hi_vals" name="header_images[<?php echo esc_attr($taxonomies); ?>][<?php echo esc_attr($term->term_id); ?>]" /><?php if($img_id==0 || true): ?><label><?php echo esc_html($wphi_set_str); ?></label><?php endif; ?></div>
         <?php do_action('gluri_slider_banner', $taxonomies.'|'.$term->term_id) ?>
-        <a class="wphi_submit_btn" title="<?php _e('Click here to submit changes','wp-header-images'); ?>"><?php _e('Save Changes','wp-header-images'); ?></a>
-        <a class="wphi_clear_btn" title="<?php _e('Click here to remove this header image','wp-header-images'); ?>"><?php _e('Clear','wp-header-images'); ?></a>
+        <a class="wphi_submit_btn" title="<?php esc_attr_e('Click here to submit changes','wp-header-images'); ?>"><?php esc_html_e('Save Changes','wp-header-images'); ?></a>
+        <a class="wphi_clear_btn" title="<?php esc_attr_e('Click here to remove this header image','wp-header-images'); ?>"><?php esc_html_e('Clear','wp-header-images'); ?></a>
     </li>
 <?php				
 			}
@@ -290,9 +283,9 @@
 		}	
 	}
 ?>
-<p class="submit<?php echo ($wphi_pro?' hides':''); ?>"><input type="submit" name="Submit" class="button-primary" value="<?php _e( 'Save Changes','wp-header-images' ); ?>" /></p>
+<p class="submit<?php echo ($wphi_pro?' hides':''); ?>"><input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes','wp-header-images' ); ?>" /></p>
 <?php }else{ ?>
-<ul class="menu-class wphi_cm"><li><?php _e('You need to','wp-header-images'); ?> <a class="" href="nav-menus.php" target="_blank"><?php _e('Create a Menu','wp-header-images'); ?></a> <?php _e('first','wp-header-images'); ?>.</li></ul>
+<ul class="menu-class wphi_cm"><li><?php esc_html_e('You need to','wp-header-images'); ?> <a class="" href="nav-menus.php" target="_blank"><?php esc_html_e('Create a Menu','wp-header-images'); ?></a> <?php esc_html_e('first','wp-header-images'); ?>.</li></ul>
 <?php } ?>
 
 <?php if(function_exists('wphi_posts_headers')){ wphi_posts_headers(); }else{ echo '<span class="wphi_posts_headers"></span>'; } ?>
@@ -307,29 +300,29 @@
 
 </form>
 
-<div class="nav-tab-content container-fluid hide" data-content="help">
+<div class="nav-tab-content hide" data-content="help">
 
-    <div class="row mt-3 si_help_section">
+    <div class="si_help_section">
     
                         
         
 
-        <ul class="position-relative">
-            <li><a class="btn btn-sm btn-info" href="https://wordpress.org/support/plugin/wp-header-images/" target="_blank"><?php _e('Open a Ticket on Support Forums', 'wp-header-images'); ?> &nbsp;<i class="fas fa-tag"></i></a></li>
-            <li><a class="btn btn-sm btn-warning" href="http://demo.androidbubble.com/contact/" target="_blank"><?php _e('Contact Developer', 'wp-header-images'); ?> &nbsp;<i class="fas fa-headset"></i></a></li>
-            <li><a class="btn btn-sm btn-secondary" href="<?php echo $wphi_premium_link; ?>/?help" target="_blank"><?php _e('Need Urgent Help?', 'wp-header-images'); ?> &nbsp;<i class="fas fa-phone"></i></i></a></li>
+        <ul class="wphi-help-links">
+            <li><a class="button button-secondary" href="https://wordpress.org/support/plugin/wp-header-images/" target="_blank"><?php esc_html_e('Open a Ticket on Support Forums', 'wp-header-images'); ?> &nbsp;<span class="dashicons dashicons-tag"></span></a></li>
+            <li><a class="button button-secondary" href="http://demo.androidbubble.com/contact/" target="_blank"><?php esc_html_e('Contact Developer', 'wp-header-images'); ?> &nbsp;<span class="dashicons dashicons-sos"></span></a></li>
+            <li><a class="button button-secondary" href="<?php echo esc_url($wphi_premium_link); ?>/?help" target="_blank"><?php esc_html_e('Need Urgent Help?', 'wp-header-images'); ?> &nbsp;<span class="dashicons dashicons-phone"></span></a></li>
             <li><iframe width="560" height="315" src="https://www.youtube.com/embed/4zJpBtWP2mw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></li>
         </ul>              
     </div>
 
 </div>
 
-<form class="nav-tab-content hide styling" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>" method="post">
-<input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?esc_attr($_GET['t']):'0'; ?>" />
+<form class="nav-tab-content hide styling" action="<?php echo esc_url(admin_url('options-general.php?page=wp_hi')); ?>" method="post">
+<input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?absint($_GET['t']):'0'; ?>" />
 <?php wp_nonce_field( 'wphi_styling_action', 'wphi_styling_action_field' ); ?>
 <textarea name="wphi_styling"><?php echo esc_textarea(get_option( 'wphi_styling', '/* Your CSS Styles */' )); ?></textarea>
 <iframe style="float:right;" src="https://www.youtube.com/embed/JfkAk5DARCI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-<p class="submit"><input type="submit" name="Submit" class="button-primary" value="<?php _e( 'Save Changes','wp-header-images' ); ?>" /></p>
+<p class="submit"><input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes','wp-header-images' ); ?>" /></p>
 </form>
 
 
@@ -341,16 +334,16 @@
 	<?php
 	if(!$wphi_pro){
 	?>
-	<a class="button wphi_premium" href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><?php _e('Click here to go premium','wp-header-images'); ?></a>
+	<a class="button wphi_premium" href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><?php esc_html_e('Click here to go premium','wp-header-images'); ?></a>
     <?php
 	}
 	?>
     <div class="accordion_wrapper">
-        <button class="accordion first btn btn-danger"><?php _e('Auto Implementation','wp-header-images'); ?> <i class="fas fa-caret-square-right"></i></button>
+        <button class="accordion first button"><?php esc_html_e('Auto Implementation','wp-header-images'); ?> <span class="dashicons dashicons-arrow-right-alt2"></span></button>
 
         <div class="panel first">
 
-    <h5><?php _e('Auto Implementation','wp-header-images'); ?> <span class="wphi-ww-ss">(<?php _e('Without Shortcodes','wp-header-images'); ?>)</span></h5>
+    <h5><?php esc_html_e('Auto Implementation','wp-header-images'); ?> <span class="wphi-ww-ss">(<?php esc_html_e('Without Shortcodes','wp-header-images'); ?>)</span></h5>
 
 
             <div class="wphi_dom_area">
@@ -381,9 +374,9 @@
                             <td>
 
                                 <?php if(is_writeable(get_stylesheet_directory().'/header.php')): ?>
-                                       <span class="dashicons dashicons-yes-alt writeable"></span> <?php _e('is writeable.', 'wp-header-images'); ?>
+                                       <span class="dashicons dashicons-yes-alt writeable"></span> <?php esc_html_e('is writeable.', 'wp-header-images'); ?>
                                 <?php else: ?>
-                                        <span class="dashicons dashicons-dismiss not_writeable"></span> <?php _e('is not writeable.', 'wp-header-images'); ?>
+                                        <span class="dashicons dashicons-dismiss not_writeable"></span> <?php esc_html_e('is not writeable.', 'wp-header-images'); ?>
                                 <?php endif; ?>
 
                              </td>
@@ -395,7 +388,7 @@
                         <tr valign="top">
 
                             <th colspan="2" style="padding-top: 0;">
-                                <?php _e('Your header.php is not writable, you may use DOM position feature for alternative implementation.', 'wp-header-images'); ?>
+                                <?php esc_html_e('Your header.php is not writable, you may use DOM position feature for alternative implementation.', 'wp-header-images'); ?>
                             </th>
 
                         </tr>
@@ -406,7 +399,7 @@
 
                             <th scope="row">
 
-                                <label for="wphi_dom_switch"><?php _e('Use DOM:', 'wp-header-images'); ?></label>
+                                <label for="wphi_dom_switch"><?php esc_html_e('Use DOM:', 'wp-header-images'); ?></label>
                                 
 
                             </th>
@@ -418,7 +411,7 @@
                                     <span class="wphi_slider wphi_round"></span>
                                 </label>
                                 
-                                <a href="https://www.youtube.com/embed/4zJpBtWP2mw" target="_blank" class="wphi-vt"><?php _e('Video Tutorial', 'wp-header-images'); ?></a>
+                                <a href="https://www.youtube.com/embed/4zJpBtWP2mw" target="_blank" class="wphi-vt"><?php esc_html_e('Video Tutorial', 'wp-header-images'); ?></a>
 
                             </td>
 
@@ -426,27 +419,27 @@
 
                         <tr valign="top" class="input_row ">
                             <th scope="row">
-                                <label for="wphi_dom_selector"><?php _e('DOM CSS Selector:', 'wp-header-images'); ?></label>
+                                <label for="wphi_dom_selector"><?php esc_html_e('DOM CSS Selector:', 'wp-header-images'); ?></label>
                             </th>
                             <td class="forminp forminp-text">
-                                <input name="wphi_dom[selector]" id="wphi_dom_selector" type="text" class="" placeholder="body p#content_1, body div.content" value="<?php echo array_key_exists('selector', $wphi_dom) ? esc_attr($wphi_dom['selector']): ''?>" required="required" /> / <?php _e('Delay:', 'wp-header-images'); ?> (<?php _e('Optional', 'wp-header-images'); ?>) <input style="width:60px" name="wphi_dom[delay]" id="wphi_dom_delay" type="text" class="" placeholder="1000" value="<?php echo array_key_exists('delay', $wphi_dom) ? esc_attr($wphi_dom['delay']): ''?>" /> <?php _e('milliseconds', 'wp-header-images'); ?>
+                                <input name="wphi_dom[selector]" id="wphi_dom_selector" type="text" class="" placeholder="body p#content_1, body div.content" value="<?php echo array_key_exists('selector', $wphi_dom) ? esc_attr($wphi_dom['selector']): ''?>" required="required" /> / <?php esc_html_e('Delay:', 'wp-header-images'); ?> (<?php esc_html_e('Optional', 'wp-header-images'); ?>) <input style="width:60px" name="wphi_dom[delay]" id="wphi_dom_delay" type="text" class="" placeholder="1000" value="<?php echo array_key_exists('delay', $wphi_dom) ? esc_attr($wphi_dom['delay']): ''?>" /> <?php esc_html_e('milliseconds', 'wp-header-images'); ?>
                                 <p class="help_text">
-                                    <span class="dashicons dashicons-editor-help"></span>  <?php _e('CSV for multiple DOM', 'wp-header-images'); ?>
+                                    <span class="dashicons dashicons-editor-help"></span>  <?php esc_html_e('CSV for multiple DOM', 'wp-header-images'); ?>
                                 </p>
                             </td>
                         </tr>
 
                         <tr valign="top" class="input_row ">
                             <th scope="row">
-                                <label><?php _e('Header Image Type:', 'wp-header-images'); ?></label>
+                                <label><?php esc_html_e('Header Image Type:', 'wp-header-images'); ?></label>
                             </th>
                             <td class="forminp forminp-text">
                                 
                                 <input name="wphi_dom[type]" value="bg" id="wphi_type_bg" type="radio" class="" <?php checked($wphi_dom_type == 'bg'); ?>>
-                                <label for="wphi_type_bg"><?php _e('Background Image', 'wp-header-images'); ?> </label>
+                                <label for="wphi_type_bg"><?php esc_html_e('Background Image', 'wp-header-images'); ?> </label>
 
                                 <span class="help_text">
-                                    <span class="dashicons dashicons-editor-help"></span> <?php _e('This option will use your inserted HTML DOM selector to show Header Image as Background Image.', 'wp-header-images'); ?>
+                                    <span class="dashicons dashicons-editor-help"></span> <?php esc_html_e('This option will use your inserted HTML DOM selector to show Header Image as Background Image.', 'wp-header-images'); ?>
                                 </span>
 
                             </td>
@@ -458,24 +451,24 @@
                             <td class="forminp forminp-text">
 
                                 <input name="wphi_dom[type]" value="img" id="wphi_type_img" type="radio" class="" <?php checked($wphi_dom_type == 'img'); ?>>
-                                <label for="wphi_type_img"><?php _e('HTML Image Tag', 'wp-header-images'); ?></label>
+                                <label for="wphi_type_img"><?php esc_html_e('HTML Image Tag', 'wp-header-images'); ?></label>
                                 <span class="help_text">
-                                    <span class="dashicons dashicons-editor-help"></span> <?php _e('This option will use your provided HTML DOM selector to insert Image tag inside it.', 'wp-header-images'); ?>
+                                    <span class="dashicons dashicons-editor-help"></span> <?php esc_html_e('This option will use your provided HTML DOM selector to insert Image tag inside it.', 'wp-header-images'); ?>
                                 </span>
                             </td>
                         </tr>
 
                         <tr valign="top" class="input_row ">
                             <th scope="row">
-                                <label for="wphi_placement_type"><?php _e('Select Placement Style:', 'wp-header-images'); ?></label>
+                                <label for="wphi_placement_type"><?php esc_html_e('Select Placement Style:', 'wp-header-images'); ?></label>
                             </th>
                             <td class="forminp-text">
 
                                 <select name="wphi_dom[placement_type]" id="wphi_placement_type">
 
-                                    <option value="replace" <?php selected($wphi_dom_p_type == 'replace'); ?>><?php _e('Fill In / Replace Everything', 'wp-header-images'); ?></option>
-                                    <option value="before" <?php selected($wphi_dom_p_type == 'before'); ?>><?php _e('Before / Above Content', 'wp-header-images'); ?></option>
-                                    <option value="after" <?php selected($wphi_dom_p_type == 'after'); ?>><?php _e('After / Below Content', 'wp-header-images'); ?></option>
+                                    <option value="replace" <?php selected($wphi_dom_p_type == 'replace'); ?>><?php esc_html_e('Fill In / Replace Everything', 'wp-header-images'); ?></option>
+                                    <option value="before" <?php selected($wphi_dom_p_type == 'before'); ?>><?php esc_html_e('Before / Above Content', 'wp-header-images'); ?></option>
+                                    <option value="after" <?php selected($wphi_dom_p_type == 'after'); ?>><?php esc_html_e('After / Below Content', 'wp-header-images'); ?></option>
 
                                 </select>
                                 
@@ -487,7 +480,7 @@
                         <tr valign="top">
                             <th scope="row">
 
-                                <input type="submit" name="wphi_dom_submit" class="button button-primary" value="<?php _e('Save Changes', 'wp-header-images') ?>">
+                                <input type="submit" name="wphi_dom_submit" class="button button-primary" value="<?php esc_attr_e('Save Changes', 'wp-header-images') ?>">
 
                             </th>
                             <td class="forminp-text">
@@ -509,7 +502,7 @@
         </div>
 
 
-        <button class="accordion btn btn-info"><?php _e('Manual Implementation','wp-header-images'); ?> <i class="fas fa-caret-square-right"></i></button>
+        <button class="accordion button"><?php esc_html_e('Manual Implementation','wp-header-images'); ?> <span class="dashicons dashicons-arrow-right-alt2"></span></button>
 
         <div class="panel">
 
@@ -519,7 +512,7 @@
 
 
 
-        <h5><?php _e('Manual Implementation','wp-header-images'); ?> <span class="wphi-ww-ss">(<?php _e('With Shortcodes','wp-header-images'); ?>)</span></h5>
+        <h5><?php esc_html_e('Manual Implementation','wp-header-images'); ?> <span class="wphi-ww-ss">(<?php esc_html_e('With Shortcodes','wp-header-images'); ?>)</span></h5>
 
 
         <div class="inner_area">
@@ -531,14 +524,14 @@
 	if(!empty($wphi_get_templates)){ ?>
 
     
-	<?php _e('Select any template','wp-header-images'); ?>: <br /><br />
+	<?php esc_html_e('Select any template','wp-header-images'); ?>: <br /><br />
 
 
     <form action="options-general.php?page=wp_hi" class="templates" method="post">
-    <input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?esc_attr($_GET['t']):'0'; ?>" />
-    <input type="submit" value="<?php _e('Save Changes'); ?>" class="button button-secondary"  />
+    <input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?absint($_GET['t']):'0'; ?>" />
+    <input type="submit" value="<?php esc_attr_e('Save Changes'); ?>" class="button button-secondary"  />
         <div class="hides">
-            <label for="wphi_template_text"><input id="wphi_template_text" type="checkbox" name="wphi_template_text" value="yes" /><?php _e('Display Page Title on Image'); ?></label>
+            <label for="wphi_template_text"><input id="wphi_template_text" type="checkbox" name="wphi_template_text" value="yes" /><?php esc_html_e('Display Page Title on Image'); ?></label>
         </div>        
     	<?php wp_nonce_field( 'wphi_template_action', 'wphi_template_field' ); ?>
     	<input style="display:none" type="text" name="wphi_template" value="<?php echo esc_attr($wphi_template); ?>" />
@@ -549,10 +542,10 @@
             
             <?php if($key=='custom'){ ?>
             <div class="wphi_template_custom">
-            	<label><?php _e('Template HTML','wp-header-images'); ?>:</label>
+            	<label><?php esc_html_e('Template HTML','wp-header-images'); ?>:</label>
                 <textarea class="template_str" name="wphi_template_custom[template_str]"><?php echo esc_textarea($templates['template_str']); ?></textarea><br />
 
-                <label><?php _e('Template Styles and Scripts','wp-header-images'); ?>:</label>
+                <label><?php esc_html_e('Template Styles and Scripts','wp-header-images'); ?>:</label>
                 <textarea class="template_scripts" name="wphi_template_custom[template_scripts]"><?php echo esc_textarea($templates['template_scripts']); ?></textarea>
             </div>
             <?php }  ?>
@@ -568,14 +561,14 @@
     <?php }else{ ?>
    
     <div class="inner_area">
-    <b class="wphi_pro"><?php _e('Templates feature is a premium feature.','wp-header-images'); ?></b>
+    <b class="wphi_pro"><?php esc_html_e('Templates feature is a premium feature.','wp-header-images'); ?></b>
     
-	<form class="templates" action="<?php echo esc_attr($_SERVER['REQUEST_URI']); ?>" method="post"> 
+	<form class="templates" action="<?php echo esc_url(admin_url('options-general.php?page=wp_hi')); ?>" method="post"> 
     
-    <input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?esc_attr($_GET['t']):'0'; ?>" />
+    <input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?absint($_GET['t']):'0'; ?>" />
 	
     <br /><br />
-	<?php _e('Select any template','wp-header-images'); ?>: <br />
+	<?php esc_html_e('Select any template','wp-header-images'); ?>: <br />
 
 	<?php
 	$wphi_get_templates = wphi_get_templates();
@@ -588,10 +581,10 @@
     
             <?php if($key=='custom'){ ?>
             <div class="wphi_template_custom">
-            	<label><?php _e('Template HTML','wp-header-images'); ?>:</label>
+            	<label><?php esc_html_e('Template HTML','wp-header-images'); ?>:</label>
                 <textarea class="template_str" name="wphi_template_custom[template_str]"><?php echo esc_textarea($templates['template_str']); ?></textarea><br />
 
-                <label><?php _e('Template Styles and Scripts','wp-header-images'); ?>:</label>
+                <label><?php esc_html_e('Template Styles and Scripts','wp-header-images'); ?>:</label>
                 <textarea class="template_scripts" name="wphi_template_custom[template_scripts]"><?php echo esc_textarea($templates['template_scripts']); ?></textarea>
             </div>
             <?php }  ?>    
@@ -606,11 +599,11 @@
     
     
     <div class="inner_area">
-    <a href="https://www.youtube.com/embed/E4kOyBnmt2A" class="wphi_vt" target="_blank"><?php _e('Video Tutorial','wp-header-images'); ?></a>
-    <b class="wphi_pro"><?php _e('For Developers','wp-header-images'); ?> (<?php echo ($wphi_pro?__('Advanced','wp-header-images'):__('Advanced/Premium','wp-header-images')); ?>)</b>
+    <a href="https://www.youtube.com/embed/E4kOyBnmt2A" class="wphi_vt" target="_blank"><?php esc_html_e('Video Tutorial','wp-header-images'); ?></a>
+    <b class="wphi_pro"><?php esc_html_e('For Developers','wp-header-images'); ?> (<?php echo ($wphi_pro?__('Advanced','wp-header-images'):__('Advanced/Premium','wp-header-images')); ?>)</b>
     
     <section>
-    <strong><?php _e('Use following action hook instead','wp-header-images'); ?>:</strong><br />
+    <strong><?php esc_html_e('Use following action hook instead','wp-header-images'); ?>:</strong><br />
     <span class="scode">&lt;?php do_action('apply_header_images',
     '&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;background-image: url(%url%);&quot;&gt;%title%&lt;/h2&gt;&lt;/div&gt;'); ?&gt;
     </span>
@@ -628,12 +621,12 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
 	</section>
     
     <section>
-    <strong><?php _e('Expected Output'); ?>:</strong><br />
+    <strong><?php esc_html_e('Expected Output'); ?>:</strong><br />
     <img src="<?php echo esc_url($wphi_link); ?>img/banner-style-c.jpg" />
     </section>
     
     <section>
-    <strong><?php _e('Sample CSS'); ?>:</strong><br /><br />
+    <strong><?php esc_html_e('Sample CSS'); ?>:</strong><br /><br />
 .header_image h2{<br />    <span class="css">background-repeat: no-repeat; <br />    background-attachment: scroll;<br />    background-size: cover;<br />    width: 100%; <br />    height: 250px; <br />    line-height: 250px;     <br />    text-align: center; <br />    text-transform: uppercase;<br />    color: #ffffff;<br />    font-weight: bold;<br />    font-size: 40px;</span><br />}
 	</section>
     
@@ -650,21 +643,21 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
 
     <div class="accordion_wrapper">
 
-        <button class="accordion first"><?php _e('Get Started','wp-header-images'); ?> <span class="dashicons dashicons-plus plus"></span><span class="dashicons dashicons-minus minus"></span></button>
+        <button class="accordion first"><?php esc_html_e('Get Started','wp-header-images'); ?> <span class="dashicons dashicons-plus plus"></span><span class="dashicons dashicons-minus minus"></span></button>
         <div class="panel first">
             <div>
                 <p>
-                    <?php _e('Click here to open theme','wp-header-images'); ?> <a href="theme-editor.php?file=header.php&theme=<?php echo esc_attr($current_theme); ?>" target="_blank">header.php</a><br />
+                    <?php esc_html_e('Click here to open theme','wp-header-images'); ?> <a href="theme-editor.php?file=header.php&theme=<?php echo esc_attr($current_theme); ?>" target="_blank">header.php</a><br />
                 </p>
 
                 <p>
-                    <?php _e('Insert this code snippet inside &lt;body&gt; tag wherever you want these header images to appear.','wp-header-images'); ?>
+                    <?php esc_html_e('Insert this code snippet inside &lt;body&gt; tag wherever you want these header images to appear.','wp-header-images'); ?>
                 </p>
 
                 <p>
                     <span class="light_blue">&lt;?php echo do_shortcode('[WP_HEADER_IMAGES]'); ?&gt;</span><br />
                 </p>
-                <?php _e("That's it."); ?><br /><br /><br />
+                <?php esc_html_e("That's it."); ?><br /><br /><br />
 
             </div>
         </div>
@@ -672,17 +665,17 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
         <button class="accordion">the_custom_header_markup(); <span class="dashicons dashicons-plus plus"></span><span class="dashicons dashicons-minus minus"></span></button>
         <div class="panel">
             <p>
-                <?php _e("This plugin is compatible with WordPress default theme function", 'wp-header-images'); ?> <a href="https://developer.wordpress.org/reference/functions/the_custom_header_markup/" target="_blank">the_custom_header_markup()</a>.<br /><br />
+                <?php esc_html_e("This plugin is compatible with WordPress default theme function", 'wp-header-images'); ?> <a href="https://developer.wordpress.org/reference/functions/the_custom_header_markup/" target="_blank">the_custom_header_markup()</a>.<br /><br />
                 &lt;?php the_custom_header_markup(); ?&gt;<br /><br />
-                <small><?php _e('If your theme is using this function so no shortcode is required. You can simply use this plugin alternative of the default header image.', 'wp-header-images'); ?></small><br /><br />
-                <small><a href="customize.php?autofocus[control]=header_image" target="_blank"><?php _e('Click here'); ?> <?php _e('to check if this theme is using default header image functionality?', 'wp-header-images'); ?></a></small>
+                <small><?php esc_html_e('If your theme is using this function so no shortcode is required. You can simply use this plugin alternative of the default header image.', 'wp-header-images'); ?></small><br /><br />
+                <small><a href="customize.php?autofocus[control]=header_image" target="_blank"><?php esc_html_e('Click here'); ?> <?php esc_html_e('to check if this theme is using default header image functionality?', 'wp-header-images'); ?></a></small>
             </p>
         </div>
 
-        <button class="accordion"><?php _e('Shortcodes','wp-header-images'); ?> [WP_HEADER_IMAGES] <span class="dashicons dashicons-plus plus"></span><span class="dashicons dashicons-minus minus"></span></button>
+        <button class="accordion"><?php esc_html_e('Shortcodes','wp-header-images'); ?> [WP_HEADER_IMAGES] <span class="dashicons dashicons-plus plus"></span><span class="dashicons dashicons-minus minus"></span></button>
         <div class="panel">
             <p>
-                <?php _e('Insert any of these code snippets inside &lt;body&gt; tag wherever you want these header images to appear.','wp-header-images'); ?>
+                <?php esc_html_e('Insert any of these code snippets inside &lt;body&gt; tag wherever you want these header images to appear.','wp-header-images'); ?>
 
                 <br />
                 <br />
@@ -701,7 +694,7 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
         <div class="panel">
             <p>
 
-                <?php _e('If you are using the following function in your custom made theme?','wp-header-images'); ?><br />
+                <?php esc_html_e('If you are using the following function in your custom made theme?','wp-header-images'); ?><br />
 <strong>get_header_image();</strong>
                 <span class="light_blue"><br /><br />
                         &emsp;$custom_made_header_image = get_header_image();<br />
@@ -714,7 +707,7 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
                         </span>
 
                 <?php if(!$wphi_pro): ?>
-                    <a href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><?php _e('Click here to Go Premium','wp-header-images'); ?></a>
+                    <a href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><?php esc_html_e('Click here to Go Premium','wp-header-images'); ?></a>
                 <?php endif; ?>
 
             </p>
@@ -727,28 +720,28 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
 
 	$disable_devices_on = (array_key_exists('disable_devices', $wphi_on_off_options) && $wphi_on_off_options['disable_devices']=='on');
 ?>
-<form class="nav-tab-content hide post_types_wrapper" action="<?php echo esc_attr($_SERVER['REQUEST_URI']); ?>" method="post">
-<input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?esc_attr($_GET['t']):'0'; ?>" />
+<form class="nav-tab-content hide post_types_wrapper" action="<?php echo esc_url(admin_url('options-general.php?page=wp_hi')); ?>" method="post">
+<input type="hidden" name="wphi_tab" value="<?php echo isset($_GET['t'])?absint($_GET['t']):'0'; ?>" />
     <?php wp_nonce_field( 'wphi_post_type_action', 'wphi_post_type_field' ); ?>
 
 <div class="wphi-on-off-wrapper">
 <?php //pree($wphi_on_off_options); ?>    
-<h5><?php _e('General Options:','wp-header-images'); ?></h5>     
+<h5><?php esc_html_e('General Options:','wp-header-images'); ?></h5>     
 <ul class="wphi_on_off_options">
     <li class="mobile-version">
         
-        <i class="fas fa-mobile-alt"></i>
-        <i class="fas fa-tablet-alt"></i>
-        <i class="fas fa-laptop"></i>
+        <span class="dashicons dashicons-smartphone"></span>
+        <span class="dashicons dashicons-tablet"></span>
+        <span class="dashicons dashicons-laptop"></span>
         
-        <strong><?php echo __('Responsiveness for Mobile Devices', 'wp-header-images'); ?></strong>
+        <strong><?php echo esc_html__('Responsiveness for Mobile Devices', 'wp-header-images'); ?></strong>
         
         <div class="form-group form-check">
         
         
           <label class="form-check-label" for="disable_devices_on">
           	
-            <input value="on" class="form-check-input" type="radio" name="wphi_on_off_options[disable_devices]" id="disable_devices_on" <?php checked($disable_devices_on); ?> /><?php echo __('Enable', 'wp-header-images'); ?>
+            <input value="on" class="form-check-input" type="radio" name="wphi_on_off_options[disable_devices]" id="disable_devices_on" <?php checked($disable_devices_on); ?> /><?php echo esc_html__('Enable', 'wp-header-images'); ?>
             
             
           </label>
@@ -757,7 +750,7 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
 
           <label class="form-check-label" for="disable_devices_off">
           	
-            <input value="off" class="form-check-input" type="radio" name="wphi_on_off_options[disable_devices]" id="disable_devices_off" <?php checked(!$disable_devices_on); ?> /><?php echo __('Disable', 'wp-header-images'); ?>
+            <input value="off" class="form-check-input" type="radio" name="wphi_on_off_options[disable_devices]" id="disable_devices_off" <?php checked(!$disable_devices_on); ?> /><?php echo esc_html__('Disable', 'wp-header-images'); ?>
             
           </label>
     
@@ -768,7 +761,7 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
 
     
 
-    <h5><?php _e('Select post types for header images:','wp-header-images'); ?> <a title="<?php _e('Click here to Go Premium','wp-header-images'); ?>" href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><small>(<?php _e('Premium Feature','wp-header-images'); ?>)</small></a></h5> 
+    <h5><?php esc_html_e('Select post types for header images:','wp-header-images'); ?> <a title="<?php esc_attr_e('Click here to Go Premium','wp-header-images'); ?>" href="<?php echo esc_url($wphi_premium_link); ?>" target="_blank"><small>(<?php esc_html_e('Premium Feature','wp-header-images'); ?>)</small></a></h5> 
 
     <?php
 
@@ -822,7 +815,7 @@ template_str=\'&lt;div class=&quot;header_image&quot;&gt;&lt;h2 style=&quot;back
     
 
     <p class="submit-wrapper">
-        <input type="submit" name="wphi_post_type_selection_submit" class="button-primary" value="<?php _e( 'Save Changes','wp-header-images' ); ?>" />
+        <input type="submit" name="wphi_post_type_selection_submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes','wp-header-images' ); ?>" />
     </p>
 
 
@@ -843,12 +836,12 @@ jQuery(document).ready(function($) {
 
 	<?php if(isset($_POST['wphi_tab'])): 
 	
-		$wphi_tab = sanitize_wphi_data($_POST['wphi_tab']);
+		$wphi_tab = absint($_POST['wphi_tab']);
 	?>
 
 	setTimeout(function(){
 
-		$('.nav-tab-wrapper .nav-tab:nth-child(<?php echo esc_html($wphi_tab+1); ?>)').click();
+		$('.nav-tab-wrapper .nav-tab:nth-child(<?php echo (int) $wphi_tab+1; ?>)').click();
 		
 	}, 1000);
 	

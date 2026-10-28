@@ -25,13 +25,12 @@ if(!function_exists('wphi_gluri_slider_init')){
                 || ! wp_verify_nonce( $_POST['wphi_nonce_action_field'], 'wphi_nonce_action' )
             ) {
 
-                _e('Sorry, your nonce did not verify.', 'wp-header-images');
+                esc_html_e('Sorry, your nonce did not verify.', 'wp-header-images');
                 exit;
 
             } else {
 
                 // process form data
-                //pree($_POST['header_images']);exit;
                 if(isset($_POST['wphi_gluri_slider']) && $is_gluri_slider){
                     update_option( 'wphi_gluri_slider', sanitize_wphi_data($_POST['wphi_gluri_slider']));
                 }
@@ -40,7 +39,6 @@ if(!function_exists('wphi_gluri_slider_init')){
                     update_option( 'wphi_header_videos', sanitize_wphi_data($_POST['header_videos']));
                 }
 				
-				//pree($_POST['header_videos']);exit;
 								
             }
 
@@ -223,10 +221,7 @@ if(!function_exists('gluri_slider_banner_callback')){
 		$wphi_header_videos = get_option('wphi_header_videos', array());
 		
         $slider_results = $gluri_slider_results;
-//        pree($slider_results);
         $id = explode('|', $id);
-//        pree($id);
-//        pree($wphi_gluri_slider);
 
         $name = '';
 		$name_video = '';
@@ -278,7 +273,6 @@ if(!function_exists('gluri_slider_banner_callback')){
 
         });
 		
-		//pree($selected_video);
 		
 
         $selection = 'none';
@@ -307,7 +301,7 @@ if(!function_exists('gluri_slider_banner_callback')){
 
                 <?php if(!empty($slider_results)): ?>
                 <select name="<?php echo esc_attr($name); ?>" id="">
-                    <option value="0"><?php _e('Select Slider', 'wp-header-images') ?></option>
+                    <option value="0"><?php esc_html_e('Select Slider', 'wp-header-images') ?></option>
 
 <?php 
 						foreach($slider_results as $slider_obj){
@@ -329,7 +323,7 @@ if(!function_exists('gluri_slider_banner_callback')){
 
                 else: ?>
 
-                    <span class="wphi_no_slider"><?php _e('No slider defined,', 'wp-header-images') ?> <a href="<?php echo esc_url(admin_url('/admin.php?page=gsp_slider')); ?>" target="_blank"><?php _e('click here', 'wp-header-images') ?></a> <?php _e('to define a new slider.', 'wp-header-images') ?> - <a href="https://www.youtube.com/embed/1kD3pKCupUc" target="_blank"><?php _e('Video Tutorial', 'wp-header-images'); ?></a></span>
+                    <span class="wphi_no_slider"><?php esc_html_e('No slider defined,', 'wp-header-images') ?> <a href="<?php echo esc_url(admin_url('/admin.php?page=gsp_slider')); ?>" target="_blank"><?php esc_html_e('click here', 'wp-header-images') ?></a> <?php esc_html_e('to define a new slider.', 'wp-header-images') ?> - <a href="https://www.youtube.com/embed/1kD3pKCupUc" target="_blank"><?php esc_html_e('Video Tutorial', 'wp-header-images'); ?></a></span>
 
 
                 <?php endif;
@@ -338,7 +332,7 @@ if(!function_exists('gluri_slider_banner_callback')){
 
                 ?>
 
-                    <span class="wphi_no_slider"><?php _e('Gluri Slider is not installed or activated,', 'wp-header-images') ?> <a href="<?php echo esc_url(admin_url('/plugin-install.php?s=Gulri+Slider&tab=search&type=term')); ?>" target="_blank"><?php _e('click here', 'wp-header-images') ?></a> <?php _e('to Install/Activate Slider Plugin.', 'wp-header-images') ?></span>
+                    <span class="wphi_no_slider"><?php esc_html_e('Gluri Slider is not installed or activated,', 'wp-header-images') ?> <a href="<?php echo esc_url(admin_url('/plugin-install.php?s=Gulri+Slider&tab=search&type=term')); ?>" target="_blank"><?php esc_html_e('click here', 'wp-header-images') ?></a> <?php esc_html_e('to Install/Activate Slider Plugin.', 'wp-header-images') ?></span>
 
 
 <?php
@@ -354,19 +348,19 @@ if(!function_exists('gluri_slider_banner_callback')){
                 <label><?php echo esc_html($wphi_set_gluri_str); ?></label>
             </div>
         </div>
-        <div data-url="<?php echo esc_url($video_url); ?>" title="<?php _e('Header Video', 'wp-header-images') ?>" class="banner_wrapper gluri_video_wrapper">
+        <div data-url="<?php echo esc_url($video_url); ?>" title="<?php esc_attr_e('Header Video', 'wp-header-images') ?>" class="banner_wrapper gluri_video_wrapper">
 
             <?php if($is_gluri_slider): ?>
             <span><?php echo esc_url($video_url?basename($video_url):''); ?></span>
             <?php
                 else:
             ?>
-                    <span class="wphi_no_slider"><?php _e('Gluri Slider is not installed or activated,', 'wp-header-images') ?> <a href="<?php echo esc_url(admin_url('/plugin-install.php?s=Gulri+Slider&tab=search&type=term')); ?>" target="_blank"><?php _e('click here', 'wp-header-images') ?></a> <?php _e('to Install/Activate Slider Plugin.', 'wp-header-images') ?></span>
+                    <span class="wphi_no_slider"><?php esc_html_e('Gluri Slider is not installed or activated,', 'wp-header-images') ?> <a href="<?php echo esc_url(admin_url('/plugin-install.php?s=Gulri+Slider&tab=search&type=term')); ?>" target="_blank"><?php esc_html_e('click here', 'wp-header-images') ?></a> <?php esc_html_e('to Install/Activate Slider Plugin.', 'wp-header-images') ?></span>
                 <?php endif; ?>
 
 
             <div class="wphi_gluri_label" <?php echo esc_attr($label?'style="'.$label.'"':''); ?>>
-                <label><?php _e('Header Video', 'wp-header-images') ?></label>
+                <label><?php esc_html_e('Header Video', 'wp-header-images') ?></label>
                 <input type="number" value="<?php echo esc_attr($selected_video); ?>" class="hide hi_vals" name="<?php echo esc_attr($name_video); ?>" />
             </div>
 
